@@ -4,19 +4,15 @@ Messaging module manifest.
 Customer communication via WhatsApp, SMS, and email with CRM automations.
 """
 
-from app.core.i18n import LazyString
 
 # ---------------------------------------------------------------------------
 # Module identity
 # ---------------------------------------------------------------------------
 MODULE_ID = "messaging"
-MODULE_NAME = LazyString("Messaging", module_id="messaging")
+MODULE_NAME = "Messaging"
 MODULE_VERSION = "2.0.0"
 MODULE_ICON = "chatbubbles-outline"
-MODULE_DESCRIPTION = LazyString(
-    "Customer communication via WhatsApp, SMS, and email with CRM automations",
-    module_id="messaging",
-)
+MODULE_DESCRIPTION = "Customer communication via WhatsApp, SMS, and email with CRM automations"
 MODULE_AUTHOR = "ERPlora"
 MODULE_CATEGORY = "marketing"
 
@@ -30,7 +26,7 @@ MIDDLEWARE = ""
 # Menu (sidebar entry)
 # ---------------------------------------------------------------------------
 MENU = {
-    "label": LazyString("Messaging", module_id="messaging"),
+    "label": "Messaging",
     "icon": "chatbubbles-outline",
     "order": 70,
 }
@@ -39,12 +35,12 @@ MENU = {
 # Navigation tabs (bottom tabbar in module views)
 # ---------------------------------------------------------------------------
 NAVIGATION = [
-    {"id": "dashboard", "label": LazyString("Dashboard", module_id="messaging"), "icon": "speedometer-outline", "view": "dashboard"},
-    {"id": "messages", "label": LazyString("Messages", module_id="messaging"), "icon": "chatbubble-outline", "view": "messages"},
-    {"id": "templates", "label": LazyString("Templates", module_id="messaging"), "icon": "document-text-outline", "view": "templates"},
-    {"id": "campaigns", "label": LazyString("Campaigns", module_id="messaging"), "icon": "megaphone-outline", "view": "campaigns"},
-    {"id": "automations", "label": LazyString("Automations", module_id="messaging"), "icon": "flash-outline", "view": "automations"},
-    {"id": "settings", "label": LazyString("Settings", module_id="messaging"), "icon": "settings-outline", "view": "settings"},
+    {"id": "dashboard", "label": "Dashboard", "icon": "speedometer-outline", "view": "dashboard"},
+    {"id": "messages", "label": "Messages", "icon": "chatbubble-outline", "view": "messages"},
+    {"id": "templates", "label": "Templates", "icon": "document-text-outline", "view": "templates"},
+    {"id": "campaigns", "label": "Campaigns", "icon": "megaphone-outline", "view": "campaigns"},
+    {"id": "automations", "label": "Automations", "icon": "flash-outline", "view": "automations"},
+    {"id": "settings", "label": "Settings", "icon": "settings-outline", "view": "settings"},
 ]
 
 # ---------------------------------------------------------------------------
@@ -56,19 +52,19 @@ DEPENDENCIES: list[str] = ["customers"]
 # Permissions
 # ---------------------------------------------------------------------------
 PERMISSIONS = [
-    ("view_message", LazyString("View messages", module_id="messaging")),
-    ("send_message", LazyString("Send messages", module_id="messaging")),
-    ("view_template", LazyString("View templates", module_id="messaging")),
-    ("add_template", LazyString("Add templates", module_id="messaging")),
-    ("change_template", LazyString("Edit templates", module_id="messaging")),
-    ("delete_template", LazyString("Delete templates", module_id="messaging")),
-    ("view_campaign", LazyString("View campaigns", module_id="messaging")),
-    ("add_campaign", LazyString("Add campaigns", module_id="messaging")),
-    ("view_automation", LazyString("View automations", module_id="messaging")),
-    ("add_automation", LazyString("Add automations", module_id="messaging")),
-    ("change_automation", LazyString("Edit automations", module_id="messaging")),
-    ("delete_automation", LazyString("Delete automations", module_id="messaging")),
-    ("manage_settings", LazyString("Manage settings", module_id="messaging")),
+    ("view_message", "View messages"),
+    ("send_message", "Send messages"),
+    ("view_template", "View templates"),
+    ("add_template", "Add templates"),
+    ("change_template", "Edit templates"),
+    ("delete_template", "Delete templates"),
+    ("view_campaign", "View campaigns"),
+    ("add_campaign", "Add campaigns"),
+    ("view_automation", "View automations"),
+    ("add_automation", "Add automations"),
+    ("change_automation", "Edit automations"),
+    ("delete_automation", "Delete automations"),
+    ("manage_settings", "Manage settings"),
 ]
 
 ROLE_PERMISSIONS = {
