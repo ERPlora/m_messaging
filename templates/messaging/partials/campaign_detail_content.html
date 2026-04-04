@@ -1,0 +1,227 @@
+<div data-back-url="/m/messaging/campaigns" hidden></div>
+
+<div class="p-4" x-data="{ cancelModal: false }">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-6">
+        <div class="flex-1">
+            <h1 class="text-2xl font-bold">{{ campaign.name }}</h1>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="badge badge-sm {{ campaign.status_color }}">{{ campaign.status_display }}</span>
+                <span class="badge badge-sm">{{ campaign.channel_display }}</span>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            {% if campaign.status == 'draft' or campaign.status == 'scheduled' %}
+            <button class="btn btn-sm color-primary"
+                    hx-post="/m/messaging/campaigns/{{ campaign.id }}/start"
+                    hx-target="#main-content-area"
+                    hx-swap="innerHTML">
+                {{ icon("play-outline") }}
+                {{ _("Start Campaign") }}
+            </button>
+            {% endif %}
+            {% if campaign.status != 'completed' and campaign.status != 'cancelled' %}
+            <button class="btn btn-outline btn-sm color-error"
+                    @click="cancelModal = true">
+                {{ icon("close-outline") }}
+                {{ _("Cancel") }}
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                        {{ icon("people-outline", class="text-2xl text-primary") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Recipients") }}</div>
+                        <div class="text-2xl font-semibold">{{ campaign.total_recipients }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center">
+                        {{ icon("send-outline", class="text-2xl text-success") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Sent") }}</div>
+                        <div class="text-2xl font-semibold text-success">{{ campaign.sent_count }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center">
+                        {{ icon("checkmark-done-outline", class="text-2xl text-warning") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Delivered") }}</div>
+                        <div class="text-2xl font-semibold">{{ campaign.delivered_count }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-error/10 rounded-xl flex items-center justify-center">
+                        {{ icon("alert-circle-outline", class="text-2xl text-error") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Failed") }}</div>
+                        <div class="text-2xl font-semibold text-error">{{ campaign.failed_count }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Campaign Details -->
+        <div class="lg:col-span-2">
+            {% if campaign.description %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("document-text-outline", class="text-primary") }} {{ _("Description") }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-sm whitespace-pre-wrap">{{ campaign.description }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if campaign.status == 'sending' %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("analytics-outline", class="text-primary") }} {{ _("Progress") }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-base-content/60">{{ campaign.progress_percent }}%</span>
+                        <span class="text-sm text-base-content/60">{{ campaign.sent_count }}/{{ campaign.total_recipients }}</span>
+                    </div>
+                    <div class="w-full bg-base-200 rounded-full h-2">
+                        <div class="bg-primary rounded-full h-2" style="width: {{ campaign.progress_percent }}%"></div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("stats-chart-outline", class="text-primary") }} {{ _("Delivery Stats") }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-sm text-base-content/60">{{ _("Delivery Rate") }}</div>
+                            <div class="text-3xl font-semibold text-success">{{ campaign.delivery_rate }}%</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-base-content/60">{{ _("Send Progress") }}</div>
+                            <div class="text-3xl font-semibold text-primary">{{ campaign.progress_percent }}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("information-circle-outline", class="text-primary") }} {{ _("Details") }}</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list">
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Channel") }}</div>
+                                <div class="list-item-label">{{ campaign.channel_display }}</div>
+                            </div>
+                        </div>
+                        {% if campaign.template %}
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Template") }}</div>
+                                <div class="list-item-label">{{ campaign.template.name }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Created") }}</div>
+                                <div class="list-item-label">{{ campaign.created_at|dateformat("d/m/Y H:i") }}</div>
+                            </div>
+                        </div>
+                        {% if campaign.scheduled_at %}
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Scheduled") }}</div>
+                                <div class="list-item-label">{{ campaign.scheduled_at|dateformat("d/m/Y H:i") }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if campaign.started_at %}
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Started") }}</div>
+                                <div class="list-item-label">{{ campaign.started_at|dateformat("d/m/Y H:i") }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if campaign.completed_at %}
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Completed") }}</div>
+                                <div class="list-item-label">{{ campaign.completed_at|dateformat("d/m/Y H:i") }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div class="modal-backdrop" :data-state="cancelModal ? 'open' : 'closed'" @click.self="cancelModal = false">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">{{ _("Cancel Campaign") }}</h3>
+                <button class="modal-close" @click="cancelModal = false">
+                    {{ icon("close-outline") }}
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-sm text-base-content/70">
+                    {{ _("Are you sure you want to cancel this campaign?") }}
+                    {{ _("This action cannot be undone. Messages already sent will not be affected.") }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost btn-sm" @click="cancelModal = false">
+                    {{ _("Keep Running") }}
+                </button>
+                <button class="btn btn-sm color-error"
+                        hx-post="/m/messaging/campaigns/{{ campaign.id }}/cancel"
+                        hx-target="#main-content-area"
+                        hx-swap="innerHTML"
+                        @click="cancelModal = false">
+                    {{ icon("close-outline") }}
+                    {{ _("Cancel Campaign") }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

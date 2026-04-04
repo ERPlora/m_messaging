@@ -1,0 +1,59 @@
+{% if messages_list %}
+<div class="list">
+    {% for msg in messages_list %}
+    <a hx-get="/m/messaging/messages/{{ msg.id }}"
+       hx-target="#main-content-area"
+       hx-push-url="true"
+       class="list-item list-item-clickable">
+        <div class="list-item-start">
+            {{ icon(msg.channel_icon, class="text-xl") }}
+        </div>
+        <div class="list-item-content">
+            <div class="list-item-label">
+                {{ msg.recipient_name|default(msg.recipient_contact) }}
+                {% if msg.subject %}<span class="text-base-content/50"> - {{ msg.subject|truncate(40) }}</span>{% endif %}
+            </div>
+            <div class="list-item-note">
+                {{ msg.body|truncate(100) }}
+            </div>
+        </div>
+        <div class="list-item-end">
+            <div class="text-right">
+                <span class="badge badge-sm {{ msg.status_color }}">{{ msg.status_display }}</span>
+                <div class="text-xs text-base-content/40 mt-1">{{ msg.created_at|dateformat("d/m/Y H:i") }}</div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if total_pages is defined and total_pages > 1 %}
+<div class="datatable-footer">
+    <div class="datatable-pagination">
+        {% if has_previous %}
+        <button class="btn btn-ghost btn-sm"
+                hx-get="/m/messaging/messages?page={{ page - 1 }}&channel={{ channel_filter }}&status={{ status_filter }}&q={{ search_query }}"
+                hx-target="#messages-list-body">
+            {{ icon("chevron-back-outline") }}
+        </button>
+        {% endif %}
+        <span class="text-sm text-base-content/60">
+            {{ _("Page %(current)s of %(total)s") % {"current": page, "total": total_pages} }}
+        </span>
+        {% if has_next %}
+        <button class="btn btn-ghost btn-sm"
+                hx-get="/m/messaging/messages?page={{ page + 1 }}&channel={{ channel_filter }}&status={{ status_filter }}&q={{ search_query }}"
+                hx-target="#messages-list-body">
+            {{ icon("chevron-forward-outline") }}
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="text-center py-12 text-base-content/40">
+    {{ icon("chatbubbles-outline", class="text-5xl block mx-auto mb-2") }}
+    <p class="mt-2">{{ _("No messages found") }}</p>
+</div>
+{% endif %}

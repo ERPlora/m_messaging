@@ -1,0 +1,263 @@
+<div class="p-4">
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                        {{ icon("chatbubbles-outline", class="text-2xl text-primary") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Total Messages") }}</div>
+                        <div class="text-2xl font-semibold">{{ total_messages }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center">
+                        {{ icon("document-text-outline", class="text-2xl text-success") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Templates") }}</div>
+                        <div class="text-2xl font-semibold text-success">{{ total_templates }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center">
+                        {{ icon("megaphone-outline", class="text-2xl text-warning") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Campaigns") }}</div>
+                        <div class="text-2xl font-semibold">{{ total_campaigns }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Form -->
+    <form hx-post="/m/messaging/settings/save"
+          hx-target="#main-content-area"
+          hx-swap="innerHTML">
+        {{ csrf_input() }}
+
+        <!-- WhatsApp Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ icon("logo-whatsapp", class="text-success") }} {{ _("WhatsApp") }}</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="list">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-label">{{ _("Enable WhatsApp") }}</div>
+                            <div class="list-item-note">{{ _("Send messages via WhatsApp Business API") }}</div>
+                        </div>
+                        <div class="list-item-end">
+                            <input type="checkbox" name="whatsapp_enabled" class="toggle"
+                                   {{ 'checked' if settings.whatsapp_enabled }}>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="form-group">
+                        <label class="form-group-label">{{ _("API Token") }}</label>
+                        <input type="password" name="whatsapp_api_token" class="input"
+                               value="{{ settings.whatsapp_api_token }}"
+                               placeholder="{{ _('WhatsApp Cloud API token') }}">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("Phone Number ID") }}</label>
+                            <input type="text" name="whatsapp_phone_id" class="input"
+                                   value="{{ settings.whatsapp_phone_id }}"
+                                   placeholder="{{ _('Phone number ID') }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("Business Account ID") }}</label>
+                            <input type="text" name="whatsapp_business_id" class="input"
+                                   value="{{ settings.whatsapp_business_id }}"
+                                   placeholder="{{ _('Business account ID') }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ icon("chatbubble-outline", class="text-primary") }} {{ _("SMS") }}</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="list">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-label">{{ _("Enable SMS") }}</div>
+                            <div class="list-item-note">{{ _("Send text messages via SMS provider") }}</div>
+                        </div>
+                        <div class="list-item-end">
+                            <input type="checkbox" name="sms_enabled" class="toggle"
+                                   {{ 'checked' if settings.sms_enabled }}>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("SMS Provider") }}</label>
+                            <select name="sms_provider" class="select">
+                                <option value="none" {{ 'selected' if settings.sms_provider == 'none' }}>{{ _("None") }}</option>
+                                <option value="twilio" {{ 'selected' if settings.sms_provider == 'twilio' }}>{{ _("Twilio") }}</option>
+                                <option value="messagebird" {{ 'selected' if settings.sms_provider == 'messagebird' }}>{{ _("MessageBird") }}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("Sender Name") }}</label>
+                            <input type="text" name="sms_sender_name" class="input"
+                                   value="{{ settings.sms_sender_name }}"
+                                   placeholder="{{ _('Max 11 characters') }}" maxlength="11">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group-label">{{ _("API Key") }}</label>
+                        <input type="password" name="sms_api_key" class="input"
+                               value="{{ settings.sms_api_key }}"
+                               placeholder="{{ _('Provider API key') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ icon("mail-outline", class="text-warning") }} {{ _("Email") }}</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="list">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-label">{{ _("Enable Email") }}</div>
+                            <div class="list-item-note">{{ _("Send messages via email (SMTP)") }}</div>
+                        </div>
+                        <div class="list-item-end">
+                            <input type="checkbox" name="email_enabled" class="toggle"
+                                   {{ 'checked' if settings.email_enabled }}>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("From Name") }}</label>
+                            <input type="text" name="email_from_name" class="input"
+                                   value="{{ settings.email_from_name }}"
+                                   placeholder="{{ _('Your Business Name') }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("From Email") }}</label>
+                            <input type="email" name="email_from_address" class="input"
+                                   value="{{ settings.email_from_address }}"
+                                   placeholder="noreply@yourbusiness.com">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("SMTP Host") }}</label>
+                            <input type="text" name="email_smtp_host" class="input"
+                                   value="{{ settings.email_smtp_host }}"
+                                   placeholder="smtp.example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("SMTP Port") }}</label>
+                            <input type="number" name="email_smtp_port" class="input"
+                                   value="{{ settings.email_smtp_port }}" min="1" max="65535">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("SMTP Username") }}</label>
+                            <input type="text" name="email_smtp_username" class="input"
+                                   value="{{ settings.email_smtp_username }}"
+                                   placeholder="{{ _('SMTP username') }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-group-label">{{ _("SMTP Password") }}</label>
+                            <input type="password" name="email_smtp_password" class="input"
+                                   value="{{ settings.email_smtp_password }}"
+                                   placeholder="{{ _('SMTP password') }}">
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-label">{{ _("Use TLS") }}</div>
+                            <div class="list-item-note">{{ _("Encrypt connection with TLS (recommended)") }}</div>
+                        </div>
+                        <div class="list-item-end">
+                            <input type="checkbox" name="email_smtp_use_tls" class="toggle"
+                                   {{ 'checked' if settings.email_smtp_use_tls }}>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Automation Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">{{ icon("timer-outline", class="text-primary") }} {{ _("Automation") }}</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="list">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-label">{{ _("Appointment Reminders") }}</div>
+                            <div class="list-item-note">{{ _("Automatically send reminders before appointments") }}</div>
+                        </div>
+                        <div class="list-item-end">
+                            <input type="checkbox" name="appointment_reminder_enabled" class="toggle"
+                                   {{ 'checked' if settings.appointment_reminder_enabled }}>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-label">{{ _("Reminder Hours") }}</div>
+                            <div class="list-item-note">{{ _("Hours before appointment to send reminder") }}</div>
+                        </div>
+                        <div class="list-item-end">
+                            <input type="number" name="appointment_reminder_hours" class="input input-sm"
+                                   value="{{ settings.appointment_reminder_hours }}" min="1" max="168"
+                                   style="width: 80px;">
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-label">{{ _("Booking Confirmations") }}</div>
+                            <div class="list-item-note">{{ _("Send confirmation when a booking is made") }}</div>
+                        </div>
+                        <div class="list-item-end">
+                            <input type="checkbox" name="booking_confirmation_enabled" class="toggle"
+                                   {{ 'checked' if settings.booking_confirmation_enabled }}>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-end">
+            <button type="submit" class="btn color-primary">
+                {{ icon("save-outline") }}
+                {{ _("Save Settings") }}
+            </button>
+        </div>
+    </form>
+</div>

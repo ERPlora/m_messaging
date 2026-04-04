@@ -1,0 +1,101 @@
+<div class="p-4">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-xl font-bold">{{ _("Campaigns") }}</h2>
+            <p class="text-sm text-base-content/60">{{ _("Bulk messaging campaigns to reach your customers") }}</p>
+        </div>
+        <a class="btn btn-sm color-primary"
+           hx-get="/m/messaging/campaigns/create"
+           hx-target="#main-content-area"
+           hx-push-url="true">
+            {{ icon("add-outline") }}
+            {{ _("New Campaign") }}
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex items-center gap-3 mb-4">
+        <label class="input input-sm" style="max-width: 320px;">
+            {{ icon("search-outline") }}
+            <input type="search"
+                   name="q"
+                   placeholder="{{ _('Search campaigns...') }}"
+                   value="{{ search_query|default("") }}"
+                   autocomplete="off"
+                   hx-get="/m/messaging/campaigns"
+                   hx-target="#main-content-area"
+                   hx-trigger="input changed delay:300ms, search">
+        </label>
+        <select name="status"
+                class="select select-sm"
+                hx-get="/m/messaging/campaigns"
+                hx-target="#main-content-area"
+                hx-trigger="change">
+            <option value="">{{ _("All Status") }}</option>
+            <option value="draft" {{ 'selected' if status_filter == 'draft' }}>{{ _("Draft") }}</option>
+            <option value="scheduled" {{ 'selected' if status_filter == 'scheduled' }}>{{ _("Scheduled") }}</option>
+            <option value="sending" {{ 'selected' if status_filter == 'sending' }}>{{ _("Sending") }}</option>
+            <option value="completed" {{ 'selected' if status_filter == 'completed' }}>{{ _("Completed") }}</option>
+            <option value="cancelled" {{ 'selected' if status_filter == 'cancelled' }}>{{ _("Cancelled") }}</option>
+        </select>
+    </div>
+
+    {% if campaigns %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for campaign in campaigns %}
+        <a hx-get="/m/messaging/campaigns/{{ campaign.id }}"
+           hx-target="#main-content-area"
+           hx-push-url="true"
+           class="card card-hover cursor-pointer">
+            <div class="card-body">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold">{{ campaign.name }}</h3>
+                    <span class="badge badge-sm {{ campaign.status_color }}">{{ campaign.status_display }}</span>
+                </div>
+                {% if campaign.description %}
+                <p class="text-sm text-base-content/60 mb-3">{{ campaign.description|truncate(90) }}</p>
+                {% endif %}
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="badge badge-sm">{{ campaign.channel_display }}</span>
+                    {% if campaign.template %}
+                    <span class="badge badge-sm color-primary">{{ campaign.template.name }}</span>
+                    {% endif %}
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div>
+                        <div class="text-base-content/50">{{ _("Recipients") }}</div>
+                        <div class="font-semibold">{{ campaign.total_recipients }}</div>
+                    </div>
+                    <div>
+                        <div class="text-base-content/50">{{ _("Sent") }}</div>
+                        <div class="font-semibold text-primary">{{ campaign.sent_count }}</div>
+                    </div>
+                    <div>
+                        <div class="text-base-content/50">{{ _("Delivered") }}</div>
+                        <div class="font-semibold text-success">{{ campaign.delivered_count }}</div>
+                    </div>
+                </div>
+                {% if campaign.scheduled_at %}
+                <div class="text-xs text-base-content/50 mt-2">
+                    {{ icon("time-outline", class="inline") }}
+                    {{ campaign.scheduled_at|dateformat("d/m/Y H:i") }}
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 text-base-content/40">
+        {{ icon("megaphone-outline", class="text-5xl block mx-auto mb-2") }}
+        <p class="mt-2">{{ _("No campaigns yet") }}</p>
+        <a hx-get="/m/messaging/campaigns/create"
+           hx-target="#main-content-area"
+           hx-push-url="true"
+           class="btn btn-sm color-primary mt-4">
+            {{ icon("add-outline") }}
+            {{ _("Create Your First Campaign") }}
+        </a>
+    </div>
+    {% endif %}
+</div>

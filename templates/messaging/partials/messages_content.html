@@ -1,0 +1,61 @@
+<div class="p-4" x-data="{ channelFilter: '{{ channel_filter|default("") }}', statusFilter: '{{ status_filter|default("") }}' }">
+    <div class="datatable glass mt-5" id="messages-datatable">
+        <!-- Toolbar -->
+        <div class="datatable-toolbar">
+            <div class="datatable-toolbar-start">
+                <label class="input input-sm datatable-search">
+                    {{ icon("search-outline") }}
+                    <input type="search"
+                           name="q"
+                           placeholder="{{ _('Search messages...') }}"
+                           value="{{ search_query|default("") }}"
+                           autocomplete="off"
+                           hx-get="/m/messaging/messages"
+                           hx-target="#messages-list-body"
+                           hx-include="#messages-datatable"
+                           hx-trigger="input changed delay:300ms, search">
+                </label>
+                <select name="channel"
+                        class="select select-sm"
+                        hx-get="/m/messaging/messages"
+                        hx-target="#messages-list-body"
+                        hx-include="#messages-datatable"
+                        hx-trigger="change">
+                    <option value="">{{ _("All Channels") }}</option>
+                    <option value="whatsapp" {{ 'selected' if channel_filter == 'whatsapp' }}>{{ _("WhatsApp") }}</option>
+                    <option value="sms" {{ 'selected' if channel_filter == 'sms' }}>{{ _("SMS") }}</option>
+                    <option value="email" {{ 'selected' if channel_filter == 'email' }}>{{ _("Email") }}</option>
+                </select>
+                <select name="status"
+                        class="select select-sm"
+                        hx-get="/m/messaging/messages"
+                        hx-target="#messages-list-body"
+                        hx-include="#messages-datatable"
+                        hx-trigger="change">
+                    <option value="">{{ _("All Status") }}</option>
+                    <option value="queued" {{ 'selected' if status_filter == 'queued' }}>{{ _("Queued") }}</option>
+                    <option value="sent" {{ 'selected' if status_filter == 'sent' }}>{{ _("Sent") }}</option>
+                    <option value="delivered" {{ 'selected' if status_filter == 'delivered' }}>{{ _("Delivered") }}</option>
+                    <option value="failed" {{ 'selected' if status_filter == 'failed' }}>{{ _("Failed") }}</option>
+                    <option value="read" {{ 'selected' if status_filter == 'read' }}>{{ _("Read") }}</option>
+                </select>
+            </div>
+            <div class="datatable-toolbar-end">
+                <a class="btn btn-sm btn-circle color-primary"
+                   hx-get="/m/messaging/messages/compose"
+                   hx-target="#main-content-area"
+                   hx-push-url="true"
+                   title="{{ _('Compose Message') }}">
+                    {{ icon("add-outline") }}
+                </a>
+            </div>
+        </div>
+
+        {{ csrf_input() }}
+
+        <!-- Message List -->
+        <div id="messages-list-body">
+            {% include "messaging/partials/messages_list_rows.html" %}
+        </div>
+    </div>
+</div>

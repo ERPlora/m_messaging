@@ -1,0 +1,18 @@
+{
+  "id": "messaging",
+  "name": "Messaging",
+  "version": "2.0.0",
+  "description": "Customer communication via WhatsApp, SMS, and email with CRM automations",
+  "author": "ERPlora",
+  "category": "marketing",
+  "icon": "chatbubbles-outline",
+  "has_models": true,
+  "dependencies": ["customers"],
+  "min_core_version": "0.1.0",
+  "tags": ["messaging", "whatsapp", "sms", "email", "campaigns", "automations", "crm"],
+  "screenshots": [],
+  "changelog": {
+    "2.0.0": "Migration to Hub Next (FastAPI + SQLAlchemy)",
+    "1.0.0": "Initial release"
+  }
+}

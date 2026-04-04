@@ -1,0 +1,209 @@
+<div class="p-4">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                        {{ icon("chatbubbles-outline", class="text-2xl text-primary") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Total Messages") }}</div>
+                        <div class="text-2xl font-semibold">{{ total_messages }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center">
+                        {{ icon("send-outline", class="text-2xl text-success") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Sent Today") }}</div>
+                        <div class="text-2xl font-semibold text-success">{{ sent_today }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center">
+                        {{ icon("checkmark-done-outline", class="text-2xl text-warning") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Delivery Rate") }}</div>
+                        <div class="text-2xl font-semibold">{{ delivery_rate }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-error/10 rounded-xl flex items-center justify-center">
+                        {{ icon("alert-circle-outline", class="text-2xl text-error") }}
+                    </div>
+                    <div>
+                        <div class="text-sm text-base-content/60">{{ _("Failed") }}</div>
+                        <div class="text-2xl font-semibold text-error">{{ failed_count }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Quick Actions -->
+        <div class="lg:col-span-1">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("flash-outline", class="text-primary") }} {{ _("Quick Actions") }}</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list">
+                        <a hx-get="/m/messaging/messages/compose"
+                           hx-target="#main-content-area"
+                           hx-push-url="true"
+                           class="list-item list-item-clickable">
+                            <div class="list-item-start">
+                                {{ icon("create-outline", class="text-xl text-primary") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-label">{{ _("Compose Message") }}</div>
+                                <div class="list-item-note">{{ _("Send a message to a customer") }}</div>
+                            </div>
+                            <div class="list-item-end">
+                                <span class="list-item-chevron"></span>
+                            </div>
+                        </a>
+                        <a hx-get="/m/messaging/campaigns/create"
+                           hx-target="#main-content-area"
+                           hx-push-url="true"
+                           class="list-item list-item-clickable">
+                            <div class="list-item-start">
+                                {{ icon("megaphone-outline", class="text-xl text-warning") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-label">{{ _("New Campaign") }}</div>
+                                <div class="list-item-note">{{ _("Create a bulk messaging campaign") }}</div>
+                            </div>
+                            <div class="list-item-end">
+                                <span class="list-item-chevron"></span>
+                            </div>
+                        </a>
+                        <a hx-get="/m/messaging/templates/create"
+                           hx-target="#main-content-area"
+                           hx-push-url="true"
+                           class="list-item list-item-clickable">
+                            <div class="list-item-start">
+                                {{ icon("document-text-outline", class="text-xl text-success") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-label">{{ _("Create Template") }}</div>
+                                <div class="list-item-note">{{ _("Design a reusable message template") }}</div>
+                            </div>
+                            <div class="list-item-end">
+                                <span class="list-item-chevron"></span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("stats-chart-outline", class="text-primary") }} {{ _("Overview") }}</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list">
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-label">{{ _("Active Campaigns") }}</div>
+                            </div>
+                            <div class="list-item-end">
+                                <span class="badge color-primary">{{ active_campaigns }}</span>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-label">{{ _("Message Templates") }}</div>
+                            </div>
+                            <div class="list-item-end">
+                                <span class="badge color-success">{{ template_count }}</span>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-label">{{ _("Delivered") }}</div>
+                            </div>
+                            <div class="list-item-end">
+                                <span class="badge color-success">{{ delivered_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="lg:col-span-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("time-outline", class="text-primary") }} {{ _("Recent Messages") }}</h3>
+                    <a hx-get="/m/messaging/messages"
+                       hx-target="#main-content-area"
+                       hx-push-url="true"
+                       class="btn btn-ghost btn-sm">
+                        {{ _("View All") }}
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_messages %}
+                    <div class="list">
+                        {% for msg in recent_messages %}
+                        <a hx-get="/m/messaging/messages/{{ msg.id }}"
+                           hx-target="#main-content-area"
+                           hx-push-url="true"
+                           class="list-item list-item-clickable">
+                            <div class="list-item-start">
+                                {{ icon(msg.channel_icon, class="text-xl") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-label">
+                                    {{ msg.recipient_name|default(msg.recipient_contact) }}
+                                </div>
+                                <div class="list-item-note">
+                                    {{ msg.body|truncate(80) }}
+                                </div>
+                            </div>
+                            <div class="list-item-end">
+                                <div class="text-right">
+                                    <span class="badge badge-sm {{ msg.status_color }}">{{ msg.status_display }}</span>
+                                    <div class="text-xs text-base-content/40 mt-1">{{ msg.created_at|dateformat("d/m/Y H:i") }}</div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12 text-base-content/40">
+                        {{ icon("chatbubbles-outline", class="text-5xl block mx-auto mb-2") }}
+                        <p class="mt-2">{{ _("No messages sent yet") }}</p>
+                        <a hx-get="/m/messaging/messages/compose"
+                           hx-target="#main-content-area"
+                           hx-push-url="true"
+                           class="btn btn-sm color-primary mt-4">
+                            {{ icon("create-outline") }}
+                            {{ _("Send Your First Message") }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,117 @@
+<div data-back-url="/m/messaging/templates" hidden></div>
+
+<div class="p-4">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-6">
+        <div class="flex-1">
+            <h1 class="text-2xl font-bold">
+                {% if is_edit %}{{ _("Edit Template") }}{% else %}{{ _("New Template") }}{% endif %}
+            </h1>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+            <div class="card">
+                <form hx-post="{% if is_edit %}/m/messaging/templates/{{ msg_template.id }}/edit{% else %}/m/messaging/templates/create{% endif %}"
+                      hx-target="#main-content-area"
+                      hx-swap="innerHTML">
+                    {{ csrf_input() }}
+                    <div class="card-body">
+                        <div class="form-group mb-4">
+                            <label class="form-group-label">{{ _("Template Name") }}</label>
+                            <input type="text" name="name" class="input"
+                                   value="{{ msg_template.name if is_edit else '' }}"
+                                   placeholder="{{ _('Template name') }}">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="form-group">
+                                <label class="form-group-label">{{ _("Channel") }}</label>
+                                <select name="channel" class="select">
+                                    <option value="all" {{ 'selected' if is_edit and msg_template.channel == 'all' }}>{{ _("All Channels") }}</option>
+                                    <option value="whatsapp" {{ 'selected' if is_edit and msg_template.channel == 'whatsapp' }}>{{ _("WhatsApp") }}</option>
+                                    <option value="sms" {{ 'selected' if is_edit and msg_template.channel == 'sms' }}>{{ _("SMS") }}</option>
+                                    <option value="email" {{ 'selected' if is_edit and msg_template.channel == 'email' }}>{{ _("Email") }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-group-label">{{ _("Category") }}</label>
+                                <select name="category" class="select">
+                                    <option value="custom" {{ 'selected' if is_edit and msg_template.category == 'custom' }}>{{ _("Custom") }}</option>
+                                    <option value="appointment_reminder" {{ 'selected' if is_edit and msg_template.category == 'appointment_reminder' }}>{{ _("Appointment Reminder") }}</option>
+                                    <option value="booking_confirmation" {{ 'selected' if is_edit and msg_template.category == 'booking_confirmation' }}>{{ _("Booking Confirmation") }}</option>
+                                    <option value="receipt" {{ 'selected' if is_edit and msg_template.category == 'receipt' }}>{{ _("Receipt") }}</option>
+                                    <option value="marketing" {{ 'selected' if is_edit and msg_template.category == 'marketing' }}>{{ _("Marketing") }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-group-label">{{ _("Subject (for email)") }}</label>
+                            <input type="text" name="subject" class="input"
+                                   value="{{ msg_template.subject if is_edit else '' }}"
+                                   placeholder="{{ _('Email subject line') }}">
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-group-label">{{ _("Message Body") }}</label>
+                            <textarea name="body" class="textarea" rows="8"
+                                      placeholder="{{ _('Message body with {{customer_name}}, {{business_name}}, etc.') }}">{{ msg_template.body if is_edit else '' }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="flex items-center gap-3">
+                                <input type="checkbox" name="is_active" class="toggle"
+                                       {{ 'checked' if not is_edit or msg_template.is_active }}>
+                                <span>{{ _("Active") }}</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-body border-t border-base-200 flex justify-end gap-2">
+                        <button type="button" class="btn btn-ghost"
+                                hx-get="/m/messaging/templates"
+                                hx-target="#main-content-area"
+                                hx-push-url="true">
+                            {{ _("Cancel") }}
+                        </button>
+                        <button type="submit" class="btn color-primary">
+                            {{ icon("save-outline") }}
+                            {% if is_edit %}{{ _("Save Changes") }}{% else %}{{ _("Create Template") }}{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help -->
+        <div class="lg:col-span-1">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("help-circle-outline", class="text-primary") }} {{ _("Template Variables") }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-sm text-base-content/60 mb-3">{{ _("Available variables for use in your template:") }}</p>
+                    <div class="space-y-2">
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{customer_name}}{% endraw %}</code>
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{business_name}}{% endraw %}</code>
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{appointment_date}}{% endraw %}</code>
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{appointment_time}}{% endraw %}</code>
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{service_name}}{% endraw %}</code>
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{staff_name}}{% endraw %}</code>
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{total_amount}}{% endraw %}</code>
+                        <code class="text-xs bg-base-200 px-2 py-1 rounded block">{% raw %}{{receipt_url}}{% endraw %}</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="callout callout-info mt-4">
+                <div class="callout-icon">{{ icon("information-circle-outline") }}</div>
+                <div class="callout-content">
+                    <div class="callout-title">{{ _("Tip") }}</div>
+                    <div class="callout-text">{{ _("Templates marked as 'All Channels' can be used for WhatsApp, SMS, and email. For email, remember to set a subject line.") }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

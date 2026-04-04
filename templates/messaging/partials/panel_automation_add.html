@@ -1,0 +1,71 @@
+<form hx-post="/m/messaging/automations/add"
+      hx-target="#automations-list"
+      @htmx:after-request="closePanel()">
+    {{ csrf_input() }}
+
+    <div class="side-sheet-header">
+        <h2 class="side-sheet-title">{{ _("New Automation") }}</h2>
+        <button type="button" class="side-sheet-close" @click="closePanel()">
+            {{ icon("close-outline") }}
+        </button>
+    </div>
+
+    <div class="side-sheet-body">
+        <div class="form-group">
+            <label class="form-group-label">{{ _("Name") }} *</label>
+            <input type="text" name="name" class="input" required placeholder="{{ _('e.g., Welcome new customers') }}">
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">{{ _("Description") }}</label>
+            <textarea name="description" class="textarea" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">{{ _("Trigger") }} *</label>
+            <select name="trigger" class="select" required>
+                {% for value, label in trigger_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">{{ _("Channel") }}</label>
+            <select name="channel" class="select">
+                <option value="email">{{ _("Email") }}</option>
+                <option value="whatsapp">{{ _("WhatsApp") }}</option>
+                <option value="sms">{{ _("SMS") }}</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">{{ _("Template") }}</label>
+            <select name="template" class="select">
+                <option value="">{{ _("None") }}</option>
+                {% for template in templates %}
+                <option value="{{ template.id }}">{{ template.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">{{ _("Delay (hours)") }}</label>
+            <input type="number" name="delay_hours" class="input" value="0" min="0">
+            <p class="text-xs text-base-content/40 mt-1">{{ _("Hours to wait after trigger before sending") }}</p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-group-label">{{ _("Active") }}</label>
+            <input type="checkbox" name="is_active" class="toggle" checked>
+        </div>
+    </div>
+
+    <div class="side-sheet-footer">
+        <button type="button" class="btn btn-ghost btn-sm" @click="closePanel()">{{ _("Cancel") }}</button>
+        <button type="submit" class="btn btn-sm color-primary">
+            {{ icon("save-outline") }}
+            {{ _("Create Automation") }}
+        </button>
+    </div>
+</form>

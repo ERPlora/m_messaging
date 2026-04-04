@@ -1,0 +1,147 @@
+<div data-back-url="/m/messaging/messages" hidden></div>
+
+<div class="p-4">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-6">
+        <div class="flex-1">
+            <h1 class="text-2xl font-bold">{{ _("Message Detail") }}</h1>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="badge badge-sm {{ message.status_color }}">{{ message.status_display }}</span>
+                <span class="text-sm text-base-content/60">{{ message.channel_display }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Message Content -->
+        <div class="lg:col-span-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        {{ icon(message.channel_icon, class="text-primary") }}
+                        {% if message.subject %}{{ message.subject }}{% else %}{{ _("Message") }}{% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-sm whitespace-pre-wrap">{{ message.body }}</div>
+                </div>
+            </div>
+
+            {% if message.error_message %}
+            <div class="callout callout-error mt-4">
+                <div class="callout-icon">{{ icon("alert-circle-outline") }}</div>
+                <div class="callout-content">
+                    <div class="callout-title">{{ _("Error") }}</div>
+                    <div class="callout-text">{{ message.error_message }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Message Info -->
+        <div class="lg:col-span-1">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("information-circle-outline", class="text-primary") }} {{ _("Details") }}</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list">
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Recipient") }}</div>
+                                <div class="list-item-label">{{ message.recipient_name|default("-") }}</div>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Contact") }}</div>
+                                <div class="list-item-label">{{ message.recipient_contact }}</div>
+                            </div>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Channel") }}</div>
+                                <div class="list-item-label">{{ message.channel_display }}</div>
+                            </div>
+                        </div>
+                        {% if message.template %}
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Template") }}</div>
+                                <div class="list-item-label">{{ message.template.name }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if message.customer %}
+                        <div class="list-item list-item-clickable"
+                             hx-get="/m/customers/{{ message.customer.id }}"
+                             hx-target="#main-content-area"
+                             hx-push-url="true">
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Customer") }}</div>
+                                <div class="list-item-label">{{ message.customer.name }}</div>
+                            </div>
+                            <div class="list-item-end">
+                                <span class="list-item-chevron"></span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timestamps -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">{{ icon("time-outline", class="text-primary") }} {{ _("Timeline") }}</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list">
+                        <div class="list-item">
+                            <div class="list-item-start">
+                                {{ icon("create-outline", class="text-base-content/40") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Created") }}</div>
+                                <div class="list-item-label">{{ message.created_at|dateformat("d/m/Y H:i:s") }}</div>
+                            </div>
+                        </div>
+                        {% if message.sent_at %}
+                        <div class="list-item">
+                            <div class="list-item-start">
+                                {{ icon("send-outline", class="text-primary") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Sent") }}</div>
+                                <div class="list-item-label">{{ message.sent_at|dateformat("d/m/Y H:i:s") }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if message.delivered_at %}
+                        <div class="list-item">
+                            <div class="list-item-start">
+                                {{ icon("checkmark-done-outline", class="text-success") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Delivered") }}</div>
+                                <div class="list-item-label">{{ message.delivered_at|dateformat("d/m/Y H:i:s") }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if message.read_at %}
+                        <div class="list-item">
+                            <div class="list-item-start">
+                                {{ icon("eye-outline", class="text-success") }}
+                            </div>
+                            <div class="list-item-content">
+                                <div class="list-item-note">{{ _("Read") }}</div>
+                                <div class="list-item-label">{{ message.read_at|dateformat("d/m/Y H:i:s") }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

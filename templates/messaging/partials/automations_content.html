@@ -1,0 +1,33 @@
+<div x-data="{ deleteConfirm: false, deleteTarget: null }">
+    <div class="flex items-center justify-between mb-4 mt-5">
+        <h2 class="text-lg font-semibold">{{ _("Automations") }}</h2>
+        <button class="btn btn-sm color-primary"
+                hx-get="/m/messaging/automations/add" hx-target="#main-content-area" hx-push-url="true">
+            {{ icon("add-outline") }}
+            {{ _("New Automation") }}
+        </button>
+    </div>
+
+    <div id="automations-list">
+        {% include "messaging/partials/automations_list.html" %}
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div class="modal-backdrop" :data-state="deleteConfirm ? 'open' : 'closed'">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">{{ _("Delete Automation") }}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{{ _("Are you sure?") }}</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost btn-sm" @click="deleteConfirm = false">{{ _("Cancel") }}</button>
+                <button class="btn btn-sm color-error"
+                        @click="if(deleteTarget) { htmx.ajax('POST', deleteTarget, {target: '#automations-list'}); deleteConfirm = false; }">
+                    {{ _("Delete") }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

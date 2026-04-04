@@ -1,0 +1,59 @@
+<div class="flex flex-col gap-3">
+    {% for automation in automations %}
+    <div class="card">
+        <div class="card-body p-4">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-base-200">
+                    {{ icon(automation.trigger_icon) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-medium">{{ automation.name }}</h3>
+                        {% if automation.is_active %}
+                        <span class="badge badge-sm color-success">{{ _("Active") }}</span>
+                        {% else %}
+                        <span class="badge badge-sm">{{ _("Inactive") }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-base-content/60">
+                        {{ automation.trigger_display }} &middot;
+                        {{ automation.channel_display }}
+                        {% if automation.delay_hours > 0 %} &middot; {{ _("Delay:") }} {{ automation.delay_hours }}h{% endif %}
+                        {% if automation.total_sent > 0 %} &middot; {{ automation.total_sent }} {{ _("sent") }}{% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="datatable-action-btn"
+                            hx-post="/m/messaging/automations/{{ automation.id }}/toggle"
+                            hx-target="#automations-list"
+                            title="{% if automation.is_active %}{{ _('Deactivate') }}{% else %}{{ _('Activate') }}{% endif %}">
+                        {% if automation.is_active %}
+                            {{ icon("pause-outline") }}
+                        {% else %}
+                            {{ icon("play-outline") }}
+                        {% endif %}
+                    </button>
+                    <button class="datatable-action-btn"
+                            hx-get="/m/messaging/automations/{{ automation.id }}/edit" hx-target="#main-content-area" hx-push-url="true"
+                            title="{{ _('Edit') }}">
+                        {{ icon("create-outline") }}
+                    </button>
+                    <button class="datatable-action-btn color-error"
+                            @click="deleteTarget = '/m/messaging/automations/{{ automation.id }}/delete'; deleteConfirm = true;"
+                            title="{{ _('Delete') }}">
+                        {{ icon("trash-outline") }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="flex justify-center mb-3">
+            {{ icon("flash-outline", class="text-4xl text-base-content/30") }}
+        </div>
+        <p class="text-base-content/50">{{ _("No automations configured") }}</p>
+        <p class="text-sm text-base-content/40 mt-1">{{ _("Create automations to send messages automatically based on CRM events") }}</p>
+    </div>
+    {% endfor %}
+</div>
