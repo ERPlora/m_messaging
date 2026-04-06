@@ -312,7 +312,7 @@ class Message(HubBaseModel):
     external_id: Mapped[str] = mapped_column(
         String(255), default="", server_default="",
     )
-    metadata: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
+    extra_metadata: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
 
     # Relationships
     template: Mapped[MessageTemplate | None] = relationship(

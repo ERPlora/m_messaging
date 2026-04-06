@@ -40,7 +40,7 @@ async def api_send(
     subject = body.get("subject", "")
     template_id = body.get("template_id")
     customer_id = body.get("customer_id")
-    metadata = body.get("metadata", {})
+    extra_metadata = body.get("extra_metadata", {})
 
     if not channel or not recipient_contact or not msg_body:
         return JSONResponse(
@@ -65,7 +65,7 @@ async def api_send(
             status="queued",
             template_id=uuid.UUID(template_id) if template_id else None,
             customer_id=uuid.UUID(customer_id) if customer_id else None,
-            metadata=metadata,
+            extra_metadata=extra_metadata,
         )
         session.add(msg)
         await session.flush()

@@ -127,7 +127,7 @@ class APISendRequest(BaseModel):
     subject: str = ""
     template_id: uuid.UUID | None = None
     customer_id: uuid.UUID | None = None
-    metadata: dict = {}
+    extra_metadata: dict = {}
 
 
 class APISendResponse(BaseModel):
