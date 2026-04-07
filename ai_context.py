@@ -36,6 +36,13 @@ Models: MessagingSettings, MessageTemplate, Message, Campaign, MessageAutomation
 - Per-hub configuration for WhatsApp API, SMS provider, SMTP
 - Automation toggles for appointment reminders and booking confirmations
 
+### Restrictions
+- Template variables use {{variable}} syntax. Known variables: customer_name, business_name,
+  appointment_date, appointment_time, service_name, staff_name, total_amount, booking_reference,
+  order_reference, reservation_date, reservation_time, party_size, customer_phone, customer_email,
+  hub_name, hub_phone, hub_address.
+- Using undefined variables (not in the known list) will produce a warning but still allow creation.
+
 ### Key Relationships
 - Message -> Customer (via customer_id FK)
 - Message -> MessageTemplate (via template_id FK)

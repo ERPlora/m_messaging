@@ -7,15 +7,32 @@ All tools are async and use HubQuery for DB access.
 
 from __future__ import annotations
 
+import re
 import uuid
 from typing import Any
-
 
 from app.ai.registry import AssistantTool, register_tool
 from app.core.db.query import HubQuery
 from app.core.db.transactions import atomic
 
 from .models import Message, MessageAutomation, MessageTemplate
+
+
+_KNOWN_TEMPLATE_VARIABLES = {
+    "customer_name", "business_name", "appointment_date", "appointment_time",
+    "service_name", "staff_name", "total_amount", "booking_reference",
+    "order_reference", "reservation_date", "reservation_time", "party_size",
+    "customer_phone", "customer_email", "hub_name", "hub_phone", "hub_address",
+}
+
+_TEMPLATE_VAR_RE = re.compile(r"\{\{(\w+)\}\}")
+
+
+def _check_template_variables(body: str) -> list[str]:
+    """Return list of undefined template variables found in body."""
+    used = set(_TEMPLATE_VAR_RE.findall(body))
+    undefined = sorted(used - _KNOWN_TEMPLATE_VARIABLES)
+    return undefined
 
 
 def _q(model, session, hub_id):
@@ -92,6 +109,13 @@ class CreateMessageTemplate(AssistantTool):
     async def execute(self, args: dict, request: Any) -> dict:
         db = request.state.db
         hub_id = request.state.hub_id
+
+        # Check for undefined template variables
+        undefined_vars = _check_template_variables(args["body"])
+        if args.get("subject"):
+            undefined_vars.extend(_check_template_variables(args["subject"]))
+            undefined_vars = sorted(set(undefined_vars))
+
         async with atomic(db) as session:
             t = MessageTemplate(
                 hub_id=hub_id,
@@ -103,7 +127,14 @@ class CreateMessageTemplate(AssistantTool):
             )
             session.add(t)
             await session.flush()
-        return {"id": str(t.id), "name": t.name, "created": True}
+
+        result: dict = {"id": str(t.id), "name": t.name, "created": True}
+        if undefined_vars:
+            result["warning"] = (
+                f"Template uses undefined variables: {', '.join('{{' + v + '}}' for v in undefined_vars)}. "
+                f"Known variables: {', '.join('{{' + v + '}}' for v in sorted(_KNOWN_TEMPLATE_VARIABLES))}."
+            )
+        return result
 
 
 @register_tool
