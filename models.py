@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, UTC
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
@@ -318,9 +318,8 @@ class Message(HubBaseModel):
     template: Mapped[MessageTemplate | None] = relationship(
         "MessageTemplate", back_populates="messages", lazy="joined",
     )
-    customer: Mapped[Any | None] = relationship(
-        "Customer", foreign_keys=[customer_id], lazy="joined",
-    )
+    # FK only — no relationship() to avoid mapper failure when customers
+    # module loads after messaging. Query customer via explicit join when needed.
 
     def __repr__(self) -> str:
         return f"<Message {self.channel} -> {self.recipient_contact}>"
