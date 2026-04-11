@@ -138,6 +138,80 @@ class CreateMessageTemplate(AssistantTool):
 
 
 @register_tool
+class BulkCreateMessageTemplates(AssistantTool):
+    name = "bulk_create_message_templates"
+    description = (
+        "Create multiple message templates at once. Useful for setting up a full template library. "
+        "Each item follows the same schema as create_message_template. "
+        "Returns created count, per-item warnings about undefined variables, and errors."
+    )
+    module_id = "messaging"
+    required_permission = "messaging.add_template"
+    requires_confirmation = True
+    parameters = {
+        "type": "object",
+        "properties": {
+            "templates": {
+                "type": "array",
+                "description": "List of templates to create",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string", "description": "Template name"},
+                        "channel": {"type": "string", "description": "whatsapp, sms, email, all"},
+                        "category": {"type": "string", "description": "Template category"},
+                        "subject": {"type": "string", "description": "Email subject line"},
+                        "body": {"type": "string", "description": "Template body (supports {{variables}})"},
+                    },
+                    "required": ["name", "channel", "body"],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": ["templates"],
+        "additionalProperties": False,
+    }
+
+    async def execute(self, args: dict, request: Any) -> dict:
+        db = request.state.db
+        hub_id = request.state.hub_id
+
+        created = 0
+        errors = []
+        warnings = []
+
+        for item in args.get("templates", []):
+            try:
+                undefined_vars = _check_template_variables(item["body"])
+                if item.get("subject"):
+                    undefined_vars.extend(_check_template_variables(item["subject"]))
+                    undefined_vars = sorted(set(undefined_vars))
+
+                async with atomic(db) as session:
+                    t = MessageTemplate(
+                        hub_id=hub_id,
+                        name=item["name"],
+                        channel=item["channel"],
+                        category=item.get("category", "custom"),
+                        subject=item.get("subject", ""),
+                        body=item["body"],
+                    )
+                    session.add(t)
+                    await session.flush()
+
+                created += 1
+                if undefined_vars:
+                    warnings.append({
+                        "name": item["name"],
+                        "warning": f"Uses undefined variables: {', '.join('{{' + v + '}}' for v in undefined_vars)}.",
+                    })
+            except Exception as e:
+                errors.append({"name": item.get("name"), "error": str(e)})
+
+        return {"success": True, "created": created, "warnings": warnings, "errors": errors}
+
+
+@register_tool
 class ListMessages(AssistantTool):
     name = "list_messages"
     description = (
