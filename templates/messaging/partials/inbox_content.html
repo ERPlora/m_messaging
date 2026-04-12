@@ -1,0 +1,126 @@
+{# Unified inbox — multi-channel conversation list (HTMX partial) #}
+
+<div class="inbox-container" id="inbox-container">
+
+  {# ── Filters bar ── #}
+  <div class="inbox-filters" style="padding: var(--space-3); border-bottom: 1px solid var(--color-border); display:flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
+
+    <form method="get" action="/m/messaging/inbox"
+          hx-get="/m/messaging/inbox"
+          hx-target="#inbox-container"
+          hx-push-url="true"
+          style="display: contents;">
+
+      {# Search #}
+      <input type="text" name="q" value="{{ search_query }}"
+             placeholder="Search conversations..."
+             class="input input-sm" style="min-width: 180px;"
+             hx-get="/m/messaging/inbox"
+             hx-trigger="keyup changed delay:400ms"
+             hx-target="#inbox-container"
+             hx-include="[name='channel'],[name='status']">
+
+      {# Channel filter #}
+      <select name="channel" class="input input-sm"
+              hx-get="/m/messaging/inbox"
+              hx-trigger="change"
+              hx-target="#inbox-container"
+              hx-include="[name='q'],[name='status']">
+        <option value="" {% if not channel_filter %}selected{% endif %}>All channels</option>
+        {% for ch in available_channels %}
+        <option value="{{ ch.id }}" {% if channel_filter == ch.id %}selected{% endif %}>
+          {{ ch.label }}
+        </option>
+        {% endfor %}
+      </select>
+
+      {# Status filter #}
+      <select name="status" class="input input-sm"
+              hx-get="/m/messaging/inbox"
+              hx-trigger="change"
+              hx-target="#inbox-container"
+              hx-include="[name='q'],[name='channel']">
+        <option value="" {% if not status_filter %}selected{% endif %}>All statuses</option>
+        <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Open</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+        <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+        <option value="snoozed" {% if status_filter == 'snoozed' %}selected{% endif %}>Snoozed</option>
+      </select>
+
+    </form>
+
+    <span class="text-muted" style="margin-left: auto; font-size: var(--font-sm);">
+      {{ total }} conversation{% if total != 1 %}s{% endif %}
+    </span>
+  </div>
+
+  {# ── Conversation list ── #}
+  {% if conversations %}
+  <div class="inbox-list">
+    {% for conv in conversations %}
+    <a href="{{ conv.detail_url }}"
+       class="inbox-item {% if conv.unread_count %}inbox-item--unread{% endif %}"
+       style="display: flex; align-items: center; padding: var(--space-3); gap: var(--space-3);
+              border-bottom: 1px solid var(--color-border-subtle); text-decoration: none;
+              color: inherit; transition: background 0.1s;">
+
+      {# Channel icon #}
+      <div class="inbox-item__icon" style="flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+           background: var(--color-surface-raised); display: flex; align-items: center; justify-content: center;">
+        <iconify-icon icon="{{ conv.channel_icon }}" style="font-size: 18px;"></iconify-icon>
+      </div>
+
+      {# Main content #}
+      <div style="flex: 1; min-width: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2);">
+          <span style="font-weight: {% if conv.unread_count %}600{% else %}400{% endif %}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            {{ conv.contact_name }}
+          </span>
+          <span style="flex-shrink: 0; font-size: var(--font-xs); color: var(--color-muted);">
+            {% if conv.last_message_at %}
+            {{ conv.last_message_at | format_datetime_short }}
+            {% endif %}
+          </span>
+        </div>
+
+        {% if conv.subject %}
+        <div style="font-size: var(--font-sm); color: var(--color-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          {{ conv.subject }}
+        </div>
+        {% endif %}
+
+        <div style="display: flex; align-items: center; gap: var(--space-2); margin-top: 2px;">
+          <span class="badge badge--sm badge--{{ conv.channel }}" style="font-size: var(--font-xs);">
+            {{ conv.channel }}
+          </span>
+          <span class="badge badge--sm" style="font-size: var(--font-xs);">
+            {{ conv.status }}
+          </span>
+        </div>
+      </div>
+
+      {# Unread badge #}
+      {% if conv.unread_count %}
+      <div style="flex-shrink: 0; min-width: 20px; height: 20px; border-radius: 10px;
+           background: var(--color-primary); color: white; font-size: var(--font-xs);
+           display: flex; align-items: center; justify-content: center; font-weight: 600;
+           padding: 0 6px;">
+        {{ conv.unread_count }}
+      </div>
+      {% endif %}
+
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div style="padding: var(--space-8); text-align: center; color: var(--color-muted);">
+    <iconify-icon icon="chatbubbles-outline" style="font-size: 48px; display: block; margin-bottom: var(--space-3);"></iconify-icon>
+    <p>No conversations found.</p>
+    {% if channel_filter or status_filter or search_query %}
+    <a href="/m/messaging/inbox" class="btn btn-secondary btn-sm">Clear filters</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>

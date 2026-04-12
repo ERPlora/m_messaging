@@ -8,6 +8,7 @@ Mounted at /m/messaging/ by ModuleRuntime.
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime, UTC
 
@@ -29,8 +30,14 @@ from .models import (
     MessageTemplate,
     MessagingSettings,
 )
+from .webhooks.router import router as _webhook_router
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# Include webhook router (no auth — Meta webhooks are public)
+router.include_router(_webhook_router)
 
 PER_PAGE = 25
 
@@ -664,3 +671,125 @@ async def settings_save(
     await db.flush()
     add_message(request, "success", "Settings saved successfully")
     return htmx_redirect("/m/messaging/settings")
+
+
+# ============================================================================
+# Unified Inbox (multi-channel: WhatsApp + Email + future channels)
+# ============================================================================
+
+@router.get("/inbox")
+@htmx_view(module_id="messaging", view_id="inbox", partial_template="messaging/partials/inbox_content.html")
+async def inbox(
+    request: Request,
+    db: DbSession,
+    user: CurrentUser,
+    hub_id: HubId,
+    channel: str = "",
+    status: str = "",
+    q: str = "",
+):
+    """Unified inbox — lists all conversations across all channels.
+
+    Pulls from communications.Thread (email + future channels) and
+    whatsapp_inbox.WhatsAppConversation (for legacy WhatsApp data).
+
+    Filters: channel, status, search query.
+    """
+    conversations: list[dict] = []
+
+    # --- WhatsApp conversations (from whatsapp_inbox module) ---
+    if not channel or channel == "whatsapp":
+        try:
+            from whatsapp_inbox.models import WhatsAppConversation  # type: ignore[import]
+            wa_query = _q(WhatsAppConversation, db, hub_id)
+            if status:
+                wa_query = wa_query.filter(WhatsAppConversation.status == status)
+            if q:
+                wa_query = wa_query.filter(WhatsAppConversation.contact_name.ilike(f"%{q}%"))
+            wa_convs = await wa_query.order_by(WhatsAppConversation.last_message_at.desc()).all()
+
+            for conv in wa_convs:
+                conversations.append({
+                    "id": str(conv.id),
+                    "channel": "whatsapp",
+                    "channel_icon": "logo-whatsapp",
+                    "contact_name": conv.contact_name,
+                    "contact_identifier": conv.wa_contact_id,
+                    "last_message_at": conv.last_message_at,
+                    "status": conv.status,
+                    "unread_count": conv.unread_count,
+                    "subject": "",
+                    "detail_url": f"/m/whatsapp_inbox/conversation/{conv.id}",
+                })
+        except ImportError:
+            pass
+        except Exception:
+            logger.exception("[messaging inbox] Error fetching WhatsApp conversations")
+
+    # --- Email / other threads (from communications module) ---
+    if not channel or channel in ("email", "instagram", "facebook"):
+        try:
+            from communications.models import Thread  # type: ignore[import]
+            from sqlalchemy import select
+
+            stmt = select(Thread).where(
+                Thread.hub_id == hub_id,
+                Thread.is_deleted.is_(False),
+            )
+            if channel:
+                stmt = stmt.where(Thread.channel == channel)
+            if status:
+                stmt = stmt.where(Thread.status == status)
+            if q:
+                stmt = stmt.where(or_(
+                    Thread.contact_name.ilike(f"%{q}%"),
+                    Thread.subject.ilike(f"%{q}%"),
+                ))
+            stmt = stmt.order_by(Thread.last_message_at.desc()).limit(100)
+
+            result = await db.execute(stmt)
+            threads = result.scalars().all()
+
+            for thread in threads:
+                icon_map = {
+                    "email": "mail-outline",
+                    "instagram": "logo-instagram",
+                    "facebook": "logo-facebook",
+                }
+                conversations.append({
+                    "id": str(thread.id),
+                    "channel": thread.channel,
+                    "channel_icon": icon_map.get(thread.channel, "chatbubble-outline"),
+                    "contact_name": thread.contact_name or thread.contact_identifier,
+                    "contact_identifier": thread.contact_identifier,
+                    "last_message_at": thread.last_message_at,
+                    "status": thread.status,
+                    "unread_count": thread.unread_count,
+                    "subject": thread.subject,
+                    "detail_url": f"/m/communications/thread/{thread.id}",
+                })
+        except ImportError:
+            pass
+        except Exception:
+            logger.exception("[messaging inbox] Error fetching communication threads")
+
+    # Sort all conversations by last_message_at (newest first)
+    conversations.sort(
+        key=lambda c: c["last_message_at"] or datetime.min.replace(tzinfo=UTC),
+        reverse=True,
+    )
+
+    # Available channels for filter dropdown
+    available_channels = [
+        {"id": "whatsapp", "label": "WhatsApp", "icon": "logo-whatsapp"},
+        {"id": "email", "label": "Email", "icon": "mail-outline"},
+    ]
+
+    return {
+        "conversations": conversations,
+        "channel_filter": channel,
+        "status_filter": status,
+        "search_query": q,
+        "available_channels": available_channels,
+        "total": len(conversations),
+    }

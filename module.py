@@ -10,7 +10,7 @@ Customer communication via WhatsApp, SMS, and email with CRM automations.
 # ---------------------------------------------------------------------------
 MODULE_ID = "messaging"
 MODULE_NAME = "Messaging"
-MODULE_VERSION = "2.2.0"
+MODULE_VERSION = "3.0.0"  # Fase 4: WhatsApp + Email as real ChannelDrivers, unified inbox
 MODULE_ICON = "chatbubbles-outline"
 MODULE_DESCRIPTION = "Customer communication via WhatsApp, SMS, and email with CRM automations"
 MODULE_AUTHOR = "ERPlora"
@@ -36,6 +36,7 @@ MENU = {
 # ---------------------------------------------------------------------------
 NAVIGATION = [
     {"id": "dashboard", "label": "Dashboard", "icon": "speedometer-outline", "view": "dashboard"},
+    {"id": "inbox", "label": "Inbox", "icon": "mail-unread-outline", "view": "inbox"},
     {"id": "messages", "label": "Messages", "icon": "chatbubble-outline", "view": "messages"},
     {"id": "templates", "label": "Templates", "icon": "document-text-outline", "view": "templates"},
     {"id": "campaigns", "label": "Campaigns", "icon": "megaphone-outline", "view": "campaigns"},
