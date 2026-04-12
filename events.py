@@ -33,6 +33,11 @@ def register_events(bus: AsyncEventBus, module_id: str) -> None:
         _on_sale_completed,
         module_id=module_id,
     )
+    bus.subscribe(
+        "leave.request_approved",
+        _on_leave_request_approved,
+        module_id=module_id,
+    )
 
 
 async def _on_customer_created(
@@ -66,4 +71,22 @@ async def _on_sale_completed(
     logger.info(
         "Messaging: sale %s completed — checking post-sale automations",
         getattr(sale, "id", "?"),
+    )
+
+
+async def _on_leave_request_approved(
+    event: str,
+    sender: object = None,
+    leave_request: object = None,
+    **kwargs: object,
+) -> None:
+    """
+    When a leave request is approved, notify the employee via the configured
+    messaging channel (placeholder — future push/email integration).
+    """
+    if leave_request is None:
+        return
+    logger.info(
+        "Messaging: leave request approved for %s — notification pending channel setup",
+        getattr(leave_request, "employee_name", "?"),
     )

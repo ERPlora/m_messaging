@@ -10,7 +10,7 @@ Customer communication via WhatsApp, SMS, and email with CRM automations.
 # ---------------------------------------------------------------------------
 MODULE_ID = "messaging"
 MODULE_NAME = "Messaging"
-MODULE_VERSION = "2.1.0"
+MODULE_VERSION = "2.2.0"
 MODULE_ICON = "chatbubbles-outline"
 MODULE_DESCRIPTION = "Customer communication via WhatsApp, SMS, and email with CRM automations"
 MODULE_AUTHOR = "ERPlora"
